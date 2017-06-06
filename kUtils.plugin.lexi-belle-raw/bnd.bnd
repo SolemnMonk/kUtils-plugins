@@ -1,0 +1,29 @@
+-buildpath: \
+	osgi.annotation;version=6.0.1,\
+	osgi.core;version=6.0,\
+	osgi.cmpn;version=6.0,\
+	kUtils.data.api;version=latest,\
+	kUtils.objects;version=latest,\
+	kUtils.plugin.api;version=latest,\
+	kUtils.utils.high;version=latest,\
+	kUtils.utils.low;version=latest,\
+	com.google.gson,\
+	org.apache.commons.collections4,\
+	org.apache.commons.io,\
+	org.apache.commons.lang3,\
+	command-response;version=latest,\
+	org.apache.felix.gogo.runtime
+
+-testpath: \
+	${junit}
+
+javac.source: 1.8
+javac.target: 1.8
+
+Bundle-Version: 0.0.0.${tstamp}
+
+Include-Resource: resources
+Export-Package: \
+	monk.solemn.kutils.plugin.lexi_belle_raw,\
+	monk.solemn.kutils.plugin.lexi_belle_raw.commands
+Bundle-Activator: monk.solemn.kutils.plugin.lexi_belle_raw.Activator

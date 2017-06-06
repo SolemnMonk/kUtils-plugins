@@ -1,0 +1,27 @@
+-buildpath: \
+	osgi.annotation;version=6.0.1,\
+	osgi.core;version=6.0,\
+	osgi.cmpn;version=6.0,\
+	kUtils.data.api;version=latest,\
+	kUtils.objects;version=latest,\
+	kUtils.utils.high;version=latest,\
+	kUtils.utils.low;version=latest,\
+	org.apache.commons.lang3,\
+	org.apache.commons.io,\
+	com.google.gson,\
+	kUtils.plugin.api;version=latest,\
+	command-response;version=latest
+
+-testpath: \
+	${junit}
+
+javac.source: 1.8
+javac.target: 1.8
+
+Bundle-Version: 0.0.0.${tstamp}
+
+Export-Package: \
+	monk.solemn.kutils.plugin.kink,\
+	monk.solemn.kutils.plugin.kink.commands
+
+Include-Resource: resources
