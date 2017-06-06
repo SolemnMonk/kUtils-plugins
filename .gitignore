@@ -26,4 +26,5 @@ target/
 *.log
 !Releases/**/*.jar
 bin/
+bin_test/
 generated/
