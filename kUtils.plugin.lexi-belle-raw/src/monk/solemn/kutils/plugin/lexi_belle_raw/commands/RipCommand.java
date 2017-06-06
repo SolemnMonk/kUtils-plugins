@@ -15,9 +15,9 @@ import monk.solemn.kutils.objects.QueuedTask;
 import monk.solemn.kutils.objects.Task;
 
 @Component(property={CommandProcessor.COMMAND_SCOPE + ":String=kutils.lbr",
-		 			 CommandProcessor.COMMAND_FUNCTION + ":String=testlogin"},
-		   service=TestLoginCommand.class)
-public class TestLoginCommand {
+		 			 CommandProcessor.COMMAND_FUNCTION + ":String=rip"},
+		   service=RipCommand.class)
+public class RipCommand {
 	PluginBase lbrPlugin;
 	
 	@Reference
@@ -25,7 +25,7 @@ public class TestLoginCommand {
 		this.lbrPlugin = lbrPlugin;
 	}
 	
-	public void testLogin() {
+	public void rip() {
 		Task task = new Task(Action.Rip, Target.Site);
 		
 		Map<String, String> options = new HashMap<>();

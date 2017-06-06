@@ -191,4 +191,10 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	public static ConfigDao getConfigDao() {
 		return configDao;
 	}
+
+	@Override
+	public void install() {
+		// TODO Auto-generated method stub
+		
+	}
 }

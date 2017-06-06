@@ -265,4 +265,10 @@ public class KinkPlugin implements PluginBase, NetworkBase {
 			return true;
 		}
 	}
+
+	@Override
+	public void install() {
+		// TODO Auto-generated method stub
+		
+	}
 }

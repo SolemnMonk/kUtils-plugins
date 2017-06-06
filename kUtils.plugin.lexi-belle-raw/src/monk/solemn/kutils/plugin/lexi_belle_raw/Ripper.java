@@ -9,6 +9,7 @@ import hall.caleb.selenium.objects.command.CommandFactory;
 import hall.caleb.selenium.objects.command.GoToCommand;
 import hall.caleb.selenium.objects.command.ReadAttributeCommand;
 import hall.caleb.selenium.objects.command.SelectorCommand;
+import hall.caleb.selenium.objects.command.WaitCommand;
 import hall.caleb.selenium.objects.response.MultiResultResponse;
 import hall.caleb.selenium.objects.response.SingleResultResponse;
 import monk.solemn.kutils.objects.QueuedTask;
@@ -17,10 +18,15 @@ import monk.solemn.kutils.utilities.high.SeleniumServerUtilities;
 public class Ripper {
 	public static void performRip(UUID seleniumId, QueuedTask task) {
 		String videoBaseUrl = LexiBelleRawPlugin.getUrl("VideosPage");
-		String imageBaseUrl = LexiBelleRawPlugin.getUrl("VideosPage");
+		String imageBaseUrl = LexiBelleRawPlugin.getUrl("ImageSetsPage");
 		Command command;
 		Integer page = 1;
 		Integer results;
+		
+		command = new WaitCommand();
+		((WaitCommand) command).setSeconds(30);
+		((WaitCommand) command).setSelector(LexiBelleRawPlugin.getXpath("WelcomeBanner"), SelectorType.Xpath);
+		SeleniumServerUtilities.sendSeleniumCommand((WaitCommand) command);
 		
 		do {
 			command = CommandFactory.newGoToCommand(seleniumId, MessageFormat.format(videoBaseUrl, page));

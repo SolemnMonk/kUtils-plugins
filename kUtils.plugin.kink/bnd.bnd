@@ -10,7 +10,8 @@
 	org.apache.commons.io,\
 	com.google.gson,\
 	kUtils.plugin.api;version=latest,\
-	command-response;version=latest
+	command-response;version=latest,\
+	org.apache.felix.gogo.runtime
 
 -testpath: \
 	${junit}
