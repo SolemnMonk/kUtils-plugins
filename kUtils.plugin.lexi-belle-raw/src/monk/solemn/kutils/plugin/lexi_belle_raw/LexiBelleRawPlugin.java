@@ -7,7 +7,8 @@ import java.util.UUID;
 
 import org.osgi.service.component.annotations.Component;
 
-import hall.caleb.selenium.objects.command.CommandFactory;
+import hall.caleb.seltzer.objects.command.CommandFactory;
+import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.api.base.PluginBase;
 import monk.solemn.kutils.api.base.SiteBase;
 import monk.solemn.kutils.data.api.ActorDao;
@@ -23,7 +24,6 @@ import monk.solemn.kutils.objects.PluginInfo;
 import monk.solemn.kutils.objects.QueuedTask;
 import monk.solemn.kutils.objects.Task;
 import monk.solemn.kutils.utilities.high.DaoUtilities;
-import monk.solemn.kutils.utilities.high.SeleniumServerUtilities;
 
 @Component
 public class LexiBelleRawPlugin implements PluginBase, SiteBase {
@@ -58,7 +58,7 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 		fileStorageDao = DaoUtilities.getFileStorageDao();
 		configDao = DaoUtilities.getConfigDao();
 		
-		seleniumId = SeleniumServerUtilities.sendSeleniumCommand(CommandFactory.newStartCommand()).getId();
+		seleniumId = SeltzerUtils.send(CommandFactory.newStartCommand()).getId();
 		
 		System.out.println(pluginId + " started");
 	}

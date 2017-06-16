@@ -10,24 +10,24 @@ import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 
-import hall.caleb.selenium.enums.SelectorType;
-import hall.caleb.selenium.objects.command.CommandFactory;
-import hall.caleb.selenium.objects.command.MultiResultSelectorCommand;
-import hall.caleb.selenium.objects.command.ReadAttributeCommand;
-import hall.caleb.selenium.objects.response.MultiResultResponse;
+import hall.caleb.seltzer.enums.SelectorType;
+import hall.caleb.seltzer.objects.command.CommandFactory;
+import hall.caleb.seltzer.objects.command.MultiResultSelectorCommand;
+import hall.caleb.seltzer.objects.command.ReadAttributeCommand;
+import hall.caleb.seltzer.objects.response.MultiResultResponse;
+import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.enums.ShootType;
 import monk.solemn.kutils.objects.QueuedTask;
 import monk.solemn.kutils.objects.Shoot;
-import monk.solemn.kutils.utilities.high.SeleniumServerUtilities;
 import monk.solemn.kutils.utilities.high.ShootUtilities;
 import monk.solemn.kutils.utilities.low.StringUtilitiesLow;
 
 public class Downloader {
 	public static Shoot downloadVideo(UUID seleniumId, QueuedTask task, String url) {
-		SeleniumServerUtilities.sendSeleniumCommand(CommandFactory.newGoToCommand(seleniumId, url));
+		SeltzerUtils.send(CommandFactory.newGoToCommand(seleniumId, url));
 		
 		MultiResultSelectorCommand command = CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("ShootTitle"), 1);
-		String title = ((MultiResultResponse) SeleniumServerUtilities.sendSeleniumCommand(command)).getResults().get(0);
+		String title = ((MultiResultResponse) SeltzerUtils.send(command)).getResults().get(0);
 		
 		Shoot shoot;
 		try {
@@ -57,7 +57,7 @@ public class Downloader {
 	
 	private static void downloadVideoFile(UUID seleniumId, Shoot shoot, String sanitizedName, QueuedTask task) {
 		ReadAttributeCommand command = CommandFactory.newReadAttributeCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("VideoSource"), 1, "src");
-		MultiResultResponse response = (MultiResultResponse) SeleniumServerUtilities.sendSeleniumCommand(command);
+		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
 		String src = response.getResults().get(0);
 		
 		Map<String, String> metadataMap = new HashMap<>();

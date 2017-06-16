@@ -5,13 +5,13 @@ import java.util.UUID;
 
 import org.osgi.service.component.annotations.Component;
 
-import hall.caleb.selenium.enums.SelectorType;
-import hall.caleb.selenium.objects.command.ChainCommand;
-import hall.caleb.selenium.objects.command.Command;
-import hall.caleb.selenium.objects.command.CommandFactory;
+import hall.caleb.seltzer.enums.SelectorType;
+import hall.caleb.seltzer.objects.command.ChainCommand;
+import hall.caleb.seltzer.objects.command.Command;
+import hall.caleb.seltzer.objects.command.CommandFactory;
+import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.api.authentication.SeleniumAuthentication;
 import monk.solemn.kutils.objects.Credentials;
-import monk.solemn.kutils.utilities.high.SeleniumServerUtilities;
 
 @Component
 public class LexiBelleRawAuthentication implements SeleniumAuthentication {
@@ -46,7 +46,7 @@ public class LexiBelleRawAuthentication implements SeleniumAuthentication {
 			command.getCommands().add(subCommand);
 			
 			command.serialize();
-			SeleniumServerUtilities.sendSeleniumCommand(command);
+			SeltzerUtils.send(command);
 			return true;
 		} else {
 			return false;
@@ -67,6 +67,6 @@ public class LexiBelleRawAuthentication implements SeleniumAuthentication {
 		command.getCommands().add(subCommand);
 		
 		command.serialize();
-		SeleniumServerUtilities.sendSeleniumCommand(command);
+		SeltzerUtils.send(command);
 	}
 }

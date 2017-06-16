@@ -11,8 +11,9 @@
 	org.apache.commons.collections4,\
 	org.apache.commons.io,\
 	org.apache.commons.lang3,\
-	command-response;version=latest,\
-	org.apache.felix.gogo.runtime
+	org.apache.felix.gogo.runtime,\
+	seltzer-cr,\
+	seltzer-util
 
 -testpath: \
 	${junit}
