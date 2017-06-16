@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<repository increment="1497575669711" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
+<repository increment="1497577858057" name="Local" xmlns="http://www.osgi.org/xmlns/repository/v1.0.0">
   <resource>
     <capability namespace="osgi.identity">
       <attribute name="osgi.identity" value="ch.qos.logback.access"/>
@@ -10059,9 +10059,9 @@
       <attribute name="version" type="Version" value="0.13.0"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="osgi.content" value="cdd335959c70f478034d31e9d9d89540c723d9d250d2eac95ade9262f11a132d"/>
+      <attribute name="osgi.content" value="add38388d837a507934c0625b63717244885b6dce8447e695c1bd925aec5dec1"/>
       <attribute name="url" value="seltzer-cr/seltzer-cr-0.13.0.jar"/>
-      <attribute name="size" type="Long" value="27394"/>
+      <attribute name="size" type="Long" value="27438"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">
@@ -10103,9 +10103,9 @@
       <attribute name="version" type="Version" value="0.13.0"/>
     </capability>
     <capability namespace="osgi.content">
-      <attribute name="osgi.content" value="d939a60844b164e4227967994406f1c80d9609b7d4848c391becf466de08521a"/>
+      <attribute name="osgi.content" value="bcf4d3e166ef51b6e5e6677a084bd836f04c7c488683538b0cf2b0337317fe35"/>
       <attribute name="url" value="seltzer-util/seltzer-util-0.13.0.jar"/>
-      <attribute name="size" type="Long" value="6007"/>
+      <attribute name="size" type="Long" value="6006"/>
       <attribute name="mime" value="application/vnd.osgi.bundle"/>
     </capability>
     <capability namespace="osgi.wiring.bundle">

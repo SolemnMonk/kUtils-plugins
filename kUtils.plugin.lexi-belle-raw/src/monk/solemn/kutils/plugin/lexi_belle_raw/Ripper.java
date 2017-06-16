@@ -23,7 +23,7 @@ public class Ripper {
 		Integer page = 1;
 		Integer results;
 		
-		command = new WaitCommand();
+		command = new WaitCommand(seleniumId);
 		((WaitCommand) command).setSeconds(30);
 		((WaitCommand) command).setSelector(LexiBelleRawPlugin.getXpath("WelcomeBanner"), SelectorType.Xpath);
 		SeltzerUtils.send((WaitCommand) command);
@@ -31,6 +31,12 @@ public class Ripper {
 		do {
 			command = CommandFactory.newGoToCommand(seleniumId, MessageFormat.format(videoBaseUrl, page));
 			SeltzerUtils.send((GoToCommand) command);
+			
+			command = new WaitCommand(seleniumId);
+			((WaitCommand) command).setSeconds(30);
+			((WaitCommand) command).setSelector(LexiBelleRawPlugin.getXpath("CardTitle"), SelectorType.Xpath);
+			SeltzerUtils.send((WaitCommand) command);
+			
 			command = CommandFactory.newCountCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("CardTitle"));
 			results = Integer.parseInt(((SingleResultResponse) SeltzerUtils.send((SelectorCommand) command)).getResult());
 			

@@ -11,9 +11,11 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
 import hall.caleb.seltzer.enums.SelectorType;
+import hall.caleb.seltzer.objects.command.ChainCommand;
 import hall.caleb.seltzer.objects.command.CommandFactory;
 import hall.caleb.seltzer.objects.command.MultiResultSelectorCommand;
 import hall.caleb.seltzer.objects.command.ReadAttributeCommand;
+import hall.caleb.seltzer.objects.command.WaitCommand;
 import hall.caleb.seltzer.objects.response.MultiResultResponse;
 import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.enums.ShootType;
@@ -26,12 +28,15 @@ public class Downloader {
 	public static Shoot downloadVideo(UUID seleniumId, QueuedTask task, String url) {
 		SeltzerUtils.send(CommandFactory.newGoToCommand(seleniumId, url));
 		
+		waitForPage(seleniumId);
+		
 		MultiResultSelectorCommand command = CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("ShootTitle"), 1);
 		String title = ((MultiResultResponse) SeltzerUtils.send(command)).getResults().get(0);
 		
 		Shoot shoot;
 		try {
 			shoot = ShootUtilities.getShootByTitle(title);
+			shoot.setSite("Lexi Belle Raw");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
@@ -49,7 +54,7 @@ public class Downloader {
 		}
 		
 		String sanitizedTitle = StringUtilitiesLow.sanitizeForPathName(shoot.getTitle());
-		
+		System.out.println(sanitizedTitle);
 		downloadVideoFile(seleniumId, shoot, sanitizedTitle, task);
 		
 		return shoot;
@@ -80,5 +85,17 @@ public class Downloader {
 		} catch (IOException | SQLException | InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void waitForPage(UUID seleniumId) {
+		ChainCommand chain = new ChainCommand(seleniumId);
+		WaitCommand wait;
+		for (String key : new String[] {"ShootTitle", "ShootDescription", "ThumbsUp", "ThumbsDown", "VideoPlayer"}) {
+			wait = new WaitCommand(seleniumId);
+			wait.setSeconds(30);
+			wait.setSelector(LexiBelleRawPlugin.getXpath(key), SelectorType.Xpath);
+			chain.getCommands().add(wait);
+		}
+		SeltzerUtils.send(chain);
 	}
 }
