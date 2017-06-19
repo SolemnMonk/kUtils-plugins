@@ -5,13 +5,13 @@ import java.util.UUID;
 
 import hall.caleb.seltzer.enums.SelectorType;
 import hall.caleb.seltzer.objects.command.Command;
-import hall.caleb.seltzer.objects.command.CommandFactory;
 import hall.caleb.seltzer.objects.command.GoToCommand;
 import hall.caleb.seltzer.objects.command.ReadAttributeCommand;
 import hall.caleb.seltzer.objects.command.SelectorCommand;
 import hall.caleb.seltzer.objects.command.WaitCommand;
 import hall.caleb.seltzer.objects.response.MultiResultResponse;
 import hall.caleb.seltzer.objects.response.SingleResultResponse;
+import hall.caleb.seltzer.util.CommandFactory;
 import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.objects.QueuedTask;
 
@@ -65,7 +65,9 @@ public class Ripper {
 		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
 		
 		for (String url : response.getResults()) {
-			 Downloader.downloadVideo(seleniumId, task, url);
+			int index = response.getResults().indexOf(url) + 1;
+			DataGatherer.cacheCoverImageUrl(seleniumId, index);
+			Downloader.downloadVideo(seleniumId, task, url);
 		}
 	}
 

@@ -8,7 +8,7 @@ import org.osgi.service.component.annotations.Component;
 import hall.caleb.seltzer.enums.SelectorType;
 import hall.caleb.seltzer.objects.command.ChainCommand;
 import hall.caleb.seltzer.objects.command.Command;
-import hall.caleb.seltzer.objects.command.CommandFactory;
+import hall.caleb.seltzer.util.CommandFactory;
 import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.api.authentication.SeleniumAuthentication;
 import monk.solemn.kutils.objects.Credentials;

@@ -12,11 +12,12 @@ import org.apache.commons.io.FilenameUtils;
 
 import hall.caleb.seltzer.enums.SelectorType;
 import hall.caleb.seltzer.objects.command.ChainCommand;
-import hall.caleb.seltzer.objects.command.CommandFactory;
 import hall.caleb.seltzer.objects.command.MultiResultSelectorCommand;
 import hall.caleb.seltzer.objects.command.ReadAttributeCommand;
 import hall.caleb.seltzer.objects.command.WaitCommand;
 import hall.caleb.seltzer.objects.response.MultiResultResponse;
+import hall.caleb.seltzer.objects.response.SingleResultResponse;
+import hall.caleb.seltzer.util.CommandFactory;
 import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.enums.ShootType;
 import monk.solemn.kutils.objects.QueuedTask;
@@ -46,6 +47,7 @@ public class Downloader {
 		
 		DataGatherer.getShootDescription(seleniumId, shoot);
 		DataGatherer.getShootRating(seleniumId, shoot);
+		DataGatherer.getShootCoverImage(seleniumId, shoot);
 		
 		try {
 			LexiBelleRawPlugin.getShootDao().saveShoot(shoot);
@@ -65,6 +67,11 @@ public class Downloader {
 		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
 		String src = response.getResults().get(0);
 		
+		String auth = ((SingleResultResponse) SeltzerUtils.send(CommandFactory.newGetCookieCommand(seleniumId, "user_auth"))).getResult();
+		
+		Map<String, String> cookieMap = new HashMap<>();
+		cookieMap.put("user_auth", auth);
+		
 		Map<String, String> metadataMap = new HashMap<>();
 		metadataMap.put("artist", "Lexi Belle");
 		metadataMap.put("album_artist", "Lexi Belle Raw");
@@ -73,10 +80,10 @@ public class Downloader {
 		metadataMap.put("TIT2", shoot.getDescription());		
 		metadataMap.put("title", shoot.getTitle());
 		
-		String path = Paths.get("Videos", sanitizedName).toString();
+		String path = Paths.get("Lexi Belle Raw", "Shoots", sanitizedName).toString();
 		
 		try {
-			File movie = LexiBelleRawPlugin.getFileStorageDao().downloadFile(src, path, true);
+			File movie = LexiBelleRawPlugin.getFileStorageDao().downloadFile(src, path, true, seleniumId, cookieMap);
 			movie.renameTo(
 					Paths.get(movie.getParent(), sanitizedName + "." + FilenameUtils.getExtension(movie.getName()))
 							.toFile());
@@ -91,9 +98,7 @@ public class Downloader {
 		ChainCommand chain = new ChainCommand(seleniumId);
 		WaitCommand wait;
 		for (String key : new String[] {"ShootTitle", "ShootDescription", "ThumbsUp", "ThumbsDown", "VideoPlayer"}) {
-			wait = new WaitCommand(seleniumId);
-			wait.setSeconds(30);
-			wait.setSelector(LexiBelleRawPlugin.getXpath(key), SelectorType.Xpath);
+			wait = CommandFactory.newWaitCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath(key), 30);
 			chain.getCommands().add(wait);
 		}
 		SeltzerUtils.send(chain);

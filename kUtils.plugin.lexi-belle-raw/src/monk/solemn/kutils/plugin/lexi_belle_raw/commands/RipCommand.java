@@ -14,7 +14,7 @@ import monk.solemn.kutils.enums.Target;
 import monk.solemn.kutils.objects.QueuedTask;
 import monk.solemn.kutils.objects.Task;
 
-@Component(property={CommandProcessor.COMMAND_SCOPE + ":String=kutils.lbr",
+@Component(property={CommandProcessor.COMMAND_SCOPE + ":String=lbr",
 		 			 CommandProcessor.COMMAND_FUNCTION + ":String=rip"},
 		   service=RipCommand.class)
 public class RipCommand {
