@@ -68,7 +68,7 @@ public class DataGatherer {
 		
 		if (coverImage == null) {
 			String name = StringUtilitiesLow.sanitizeForPathName(shoot.getTitle());
-			coverImage = new KUtilsImage(Paths.get("Lexi Belle Raw", "Shoots", name, "poster.png").toString());
+			coverImage = new KUtilsImage(Paths.get("Lexi Belle Raw", name, "poster.png").toString());
 			shoot.setCoverImage(coverImage);
 		}
 		
@@ -118,9 +118,7 @@ public class DataGatherer {
 		
 		try {
 			actor = ActorUtilities.getActorByName("Lexi Belle");
-			if (actor.getGender() == null) { 
-				actor.setGender(Gender.Female);
-			}
+			actor.setGender(Gender.Female);
 			DaoUtilities.getActorDao().saveActor(actor);
 			shoot.getActors().add(actor);
 		} catch (SQLException e) {

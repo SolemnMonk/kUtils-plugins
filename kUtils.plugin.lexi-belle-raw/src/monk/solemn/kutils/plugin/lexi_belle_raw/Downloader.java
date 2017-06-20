@@ -41,7 +41,7 @@ public class Downloader {
 	public static Shoot downloadVideo(UUID seleniumId, QueuedTask task, String url) {
 		SeltzerUtils.send(CommandFactory.newGoToCommand(seleniumId, url));
 		
-		waitForPage(seleniumId, new String[] {"VideoShootTitle", "ShootDescription", "ThumbsUp", "ThumbsDown", "VideoPlayer"});
+		waitForPage(seleniumId, new String[] {"VideoShootTitle", "ThumbsUp", "ThumbsDown", "VideoPlayer"});
 		
 		MultiResultSelectorCommand command = CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("VideoShootTitle"), 1);
 		String title = ((MultiResultResponse) SeltzerUtils.send(command)).getResults().get(0);
@@ -138,7 +138,7 @@ public class Downloader {
 		metadataMap.put("TIT2", shoot.getDescription());		
 		metadataMap.put("title", shoot.getTitle());
 		
-		String path = Paths.get("Lexi Belle Raw", "Shoots", sanitizedName).toString();
+		String path = Paths.get("Lexi Belle Raw", sanitizedName).toString();
 		
 		try {
 			File movie = LexiBelleRawPlugin.getFileStorageDao().downloadFile(src, path, true, seleniumId, cookieMap);
@@ -213,7 +213,7 @@ public class Downloader {
 							paddedName = "0" + paddedName;
 						}
 						
-						image = new KUtilsImage(Paths.get("Lexi Belle Raw", "Shoots", sanitizedName, paddedName +  ".png").toString());
+						image = new KUtilsImage(Paths.get("Lexi Belle Raw", sanitizedName, paddedName +  ".png").toString());
 						image.setImage(imageBuffer);
 						previewImages.add(image);
 					}

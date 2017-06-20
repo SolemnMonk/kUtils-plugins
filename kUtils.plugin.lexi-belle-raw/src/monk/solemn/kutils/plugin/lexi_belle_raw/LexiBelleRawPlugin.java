@@ -90,6 +90,8 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 		if (taskRequiresAuthentication()) {
 			new LexiBelleRawAuthentication().logout(seleniumId);
 		}
+		
+		SeltzerUtils.send(CommandFactory.newExitCommand(seleniumId));
 	}
 
 	@Override

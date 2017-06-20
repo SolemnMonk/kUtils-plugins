@@ -59,8 +59,6 @@ public class Ripper {
 			
 			page++;
 		} while (results == 10);
-		
-		SeltzerUtils.send(CommandFactory.newExitCommand(seleniumId));
 	}
 
 	private static void ripVideos(UUID seleniumId, QueuedTask task, int videoCount) {
