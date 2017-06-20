@@ -27,20 +27,19 @@ public class Ripper {
 		((WaitCommand) command).setSeconds(30);
 		((WaitCommand) command).setSelector(LexiBelleRawPlugin.getXpath("WelcomeBanner"), SelectorType.Xpath);
 		SeltzerUtils.send((WaitCommand) command);
+
+		String cardTitles = LexiBelleRawPlugin.getXpath("CardTitles");
 		
 		do {
 			command = CommandFactory.newGoToCommand(seleniumId, MessageFormat.format(videoBaseUrl, page));
 			SeltzerUtils.send((GoToCommand) command);
 			
-			command = new WaitCommand(seleniumId);
-			((WaitCommand) command).setSeconds(30);
-			((WaitCommand) command).setSelector(LexiBelleRawPlugin.getXpath("CardTitle"), SelectorType.Xpath);
-			SeltzerUtils.send((WaitCommand) command);
+			waitForTitles(seleniumId);
 			
-			command = CommandFactory.newCountCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("CardTitle"));
+			command = CommandFactory.newCountCommand(seleniumId, SelectorType.Xpath, cardTitles);
 			results = Integer.parseInt(((SingleResultResponse) SeltzerUtils.send((SelectorCommand) command)).getResult());
 			
-			ripVideos(seleniumId, task);
+			ripVideos(seleniumId, task, results);
 			
 			page++;
 		} while (results == 10);
@@ -50,34 +49,68 @@ public class Ripper {
 		do {
 			command = CommandFactory.newGoToCommand(seleniumId, MessageFormat.format(imageBaseUrl, page));
 			SeltzerUtils.send((GoToCommand) command);
-			command = CommandFactory.newCountCommand(seleniumId, SelectorType.Xpath, LexiBelleRawPlugin.getXpath("CardTitle"));
+			
+			waitForTitles(seleniumId);
+			
+			command = CommandFactory.newCountCommand(seleniumId, SelectorType.Xpath, cardTitles);
 			results = Integer.parseInt(((SingleResultResponse) SeltzerUtils.send((SelectorCommand) command)).getResult());
 			
-			ripPictures(seleniumId, task);
+			ripPictures(seleniumId, task, results);
 			
 			page++;
 		} while (results == 10);
+		
+		SeltzerUtils.send(CommandFactory.newExitCommand(seleniumId));
 	}
 
-	private static void ripVideos(UUID seleniumId, QueuedTask task) {
+	private static void ripVideos(UUID seleniumId, QueuedTask task, int videoCount) {
 		String titleXpath = LexiBelleRawPlugin.getXpath("CardTitle");
-		ReadAttributeCommand command = CommandFactory.newReadAttributeCommand(seleniumId, SelectorType.Xpath, titleXpath, 0, "href");
-		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
+		ReadAttributeCommand command;
+		MultiResultResponse response;
+		String url;
 		
-		for (String url : response.getResults()) {
-			int index = response.getResults().indexOf(url) + 1;
-			DataGatherer.cacheCoverImageUrl(seleniumId, index);
+		for (int i = 1; i <= videoCount; i++) {
+			waitForTitles(seleniumId);
+			
+			int column = (i % 2 == 1 ? 1 : 2);
+			int index = (i + 1) / 2;
+			
+			command = CommandFactory.newReadAttributeCommand(seleniumId, SelectorType.Xpath, MessageFormat.format(titleXpath, column, index), 1, "href");
+			response = (MultiResultResponse) SeltzerUtils.send(command);
+			url = response.getResults().get(0);
+			
+			DataGatherer.cacheCoverImageUrl(seleniumId, column, index);
 			Downloader.downloadVideo(seleniumId, task, url);
+			SeltzerUtils.send(CommandFactory.newBackCommand(seleniumId));
 		}
 	}
 
-	private static void ripPictures(UUID seleniumId, QueuedTask task) {
+	private static void ripPictures(UUID seleniumId, QueuedTask task, int albumCount) {
 		String titleXpath = LexiBelleRawPlugin.getXpath("CardTitle");
-		ReadAttributeCommand command = CommandFactory.newReadAttributeCommand(seleniumId, SelectorType.Xpath, titleXpath, 0, "href");
-		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
+		ReadAttributeCommand command;
+		MultiResultResponse response;
+		String url;
 		
-		for (String url : response.getResults()) {
-			// Downloader.downloadPictureSet(seleniumId, task, url);
+		for (int i = 1; i <= albumCount; i++) {
+			waitForTitles(seleniumId);
+			
+			int column = (i % 2 == 1 ? 1 : 2);
+			int index = (i + 1) / 2;
+			
+			command = CommandFactory.newReadAttributeCommand(seleniumId, SelectorType.Xpath, MessageFormat.format(titleXpath, column, index), 1, "href");
+			response = (MultiResultResponse) SeltzerUtils.send(command);
+			url = response.getResults().get(0);
+			
+			DataGatherer.cacheCoverImageUrl(seleniumId, column, index);
+			Downloader.downloadImageSet(seleniumId, task, url);
+			SeltzerUtils.send(CommandFactory.newBackCommand(seleniumId));
 		}
+	}
+	
+	private static void waitForTitles(UUID seleniumId) {
+		WaitCommand command = new WaitCommand(seleniumId);
+		command.setSeconds(30);
+		command.setSelector(LexiBelleRawPlugin.getXpath("CardTitles"), SelectorType.Xpath);
+		SeltzerUtils.send((WaitCommand) command);
 	}
 }

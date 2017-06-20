@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,12 +19,17 @@ import javax.imageio.ImageIO;
 import org.apache.commons.lang3.StringUtils;
 
 import hall.caleb.seltzer.enums.SelectorType;
+import hall.caleb.seltzer.objects.command.MultiResultSelectorCommand;
 import hall.caleb.seltzer.objects.response.MultiResultResponse;
 import hall.caleb.seltzer.util.CommandFactory;
 import hall.caleb.seltzer.util.SeltzerUtils;
+import monk.solemn.kutils.enums.Gender;
+import monk.solemn.kutils.objects.Actor;
 import monk.solemn.kutils.objects.KUtilsImage;
 import monk.solemn.kutils.objects.Rating;
 import monk.solemn.kutils.objects.Shoot;
+import monk.solemn.kutils.utilities.high.ActorUtilities;
+import monk.solemn.kutils.utilities.high.DaoUtilities;
 import monk.solemn.kutils.utilities.low.ImageUtilitiesLow;
 import monk.solemn.kutils.utilities.low.StringUtilitiesLow;
 
@@ -37,10 +44,8 @@ public class DataGatherer {
 		shoot.setDescription(response.getResults().get(0));
 	}
 	
-	public static void cacheCoverImageUrl(UUID seleniumId, Integer index) {
-		String xpath = LexiBelleRawPlugin.getXpath("VideoCoverImage");
-		Integer column = (index % 2) + 1;
-		index = (index + 1) / 2;
+	public static void cacheCoverImageUrl(UUID seleniumId, Integer column, Integer index) {
+		String xpath = LexiBelleRawPlugin.getXpath("CardTitle");
 		xpath = MessageFormat.format(xpath, column, index);
 		
 		MultiResultResponse response;
@@ -99,6 +104,43 @@ public class DataGatherer {
 		cachedCoverUrl = null;
 	}
 	
+	public static void getShootActors(UUID seleniumId, Shoot shoot) {
+		String actorListXpath = LexiBelleRawPlugin.getXpath("ActorList");
+		
+		if (shoot.getActors() == null) {
+			shoot.setActors(new ArrayList<>());
+		}
+		
+		MultiResultSelectorCommand command = CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, actorListXpath, 0);
+		MultiResultResponse response = (MultiResultResponse) SeltzerUtils.send(command);
+		
+		Actor actor;
+		
+		try {
+			actor = ActorUtilities.getActorByName("Lexi Belle");
+			if (actor.getGender() == null) { 
+				actor.setGender(Gender.Female);
+			}
+			DaoUtilities.getActorDao().saveActor(actor);
+			shoot.getActors().add(actor);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		for (String name : response.getResults()) {
+			try {
+				actor = ActorUtilities.getActorByName(name);
+				if (actor.getGender() == null) { 
+					actor.setGender(Gender.Unknown);
+				}
+				DaoUtilities.getActorDao().saveActor(actor);
+				shoot.getActors().add(actor);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public static void getShootRating(UUID seleniumId, Shoot shoot) {
 		String upXpath = LexiBelleRawPlugin.getXpath("ThumbsUp");
 		String downXpath = LexiBelleRawPlugin.getXpath("ThumbsDown");
@@ -109,12 +151,16 @@ public class DataGatherer {
 		MultiResultResponse response;
 		
 		response = (MultiResultResponse) SeltzerUtils.send(CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, upXpath, 1));
-		thumbsUp = Integer.parseInt(response.getResults().get(0));
-		response = (MultiResultResponse) SeltzerUtils.send(CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, downXpath, 1));
-		thumbsDown = Integer.parseInt(response.getResults().get(0));
-		
-		Integer sum = thumbsUp + thumbsDown;
-		
-		shoot.setRating(new Rating(thumbsUp.doubleValue() / sum, sum));
+		if (response.getResults().size() != 0) {
+			thumbsUp = Integer.parseInt(response.getResults().get(0));
+			response = (MultiResultResponse) SeltzerUtils.send(CommandFactory.newReadTextCommand(seleniumId, SelectorType.Xpath, downXpath, 1));
+			thumbsDown = Integer.parseInt(response.getResults().get(0));
+			
+			Integer sum = thumbsUp + thumbsDown;
+			
+			shoot.setRating(new Rating(thumbsUp.doubleValue() / sum, sum));
+		} else {
+			shoot.setRating(new Rating(0d, 0));
+		}
 	}
 }
