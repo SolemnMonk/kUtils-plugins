@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import org.osgi.service.component.annotations.Component;
 
-import hall.caleb.seltzer.util.CommandFactory;
-import hall.caleb.seltzer.util.SeltzerUtils;
 import monk.solemn.kutils.api.base.PluginBase;
 import monk.solemn.kutils.api.base.SiteBase;
 import monk.solemn.kutils.data.api.ActorDao;
@@ -24,6 +22,10 @@ import monk.solemn.kutils.objects.PluginInfo;
 import monk.solemn.kutils.objects.QueuedTask;
 import monk.solemn.kutils.objects.Task;
 import monk.solemn.kutils.utilities.high.DaoUtilities;
+import tech.seltzer.enums.CommandType;
+import tech.seltzer.objects.command.CommandData;
+import tech.seltzer.objects.exception.SeltzerException;
+import tech.seltzer.util.SeltzerSend;
 
 @Component
 public class LexiBelleRawPlugin implements PluginBase, SiteBase {
@@ -31,11 +33,12 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	
 	private static ResourceBundle urls;
 	private static ResourceBundle xpaths;
+	private static ResourceBundle regex;
 	
 	private static QueuedTask queuedTask;
 	private static PluginInfo info;
 
-	private static UUID seleniumId;
+	private static UUID seltzerId;
 	
 	private static ActorDao actorDao;
 	private static CredentialDao credentialDao;
@@ -58,7 +61,11 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 		fileStorageDao = DaoUtilities.getFileStorageDao();
 		configDao = DaoUtilities.getConfigDao();
 		
-		seleniumId = SeltzerUtils.send(CommandFactory.newStartCommand()).getId();
+		try {
+			seltzerId = SeltzerSend.send(new CommandData(CommandType.START)).getId();
+		} catch (SeltzerException e) {
+			e.printStackTrace();
+		}
 		
 		System.out.println(pluginId + " started");
 	}
@@ -74,11 +81,11 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	@Override
 	public void run() {
 		if (taskRequiresAuthentication()) {
-			new LexiBelleRawAuthentication().login(seleniumId);
+			new LexiBelleRawAuthentication().login();
 		}
 		
 		if (queuedTask.getTask().getAction() == Action.Rip) {
-			Ripper.performRip(seleniumId, queuedTask);
+			Ripper.performRip(seltzerId, queuedTask);
 //		} else if (queuedTask.getTask().getAction() == Action.Download) {
 //			Downloader.performDownload(seleniumId, queuedTask);
 //		} else if (queuedTask.getTask().getAction() == Action.GatherData) {
@@ -88,10 +95,14 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 		}
 		
 		if (taskRequiresAuthentication()) {
-			new LexiBelleRawAuthentication().logout(seleniumId);
+			new LexiBelleRawAuthentication().logout();
 		}
 		
-		SeltzerUtils.send(CommandFactory.newExitCommand(seleniumId));
+		try {
+			SeltzerSend.send(new CommandData(CommandType.EXIT, seltzerId));
+		} catch (SeltzerException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -147,11 +158,13 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 
 		urls = ResourceBundle.getBundle("urls");
 		xpaths = ResourceBundle.getBundle("xpaths");
+		regex = ResourceBundle.getBundle("regex");
 	}
 	
 	private void unloadProperties() {
 		urls = null;
 		xpaths = null;
+		regex = null;
 	}
 	
 	public static String getUrl(String key) {
@@ -165,6 +178,14 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	public static String getXpath(String key) {
 		if (xpaths.containsKey(key)) {
 			return xpaths.getString(key);
+		} else {
+			return null;
+		}
+	}
+	
+	public static String getRegex(String key) {
+		if (regex.containsKey(key)) {
+			return regex.getString(key);
 		} else {
 			return null;
 		}
@@ -192,6 +213,14 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 
 	public static ConfigDao getConfigDao() {
 		return configDao;
+	}
+
+	public static UUID getSeltzerId() {
+		return seltzerId;
+	}
+
+	public static void setSeltzerId(UUID seleniumId) {
+		LexiBelleRawPlugin.seltzerId = seleniumId;
 	}
 
 	@Override

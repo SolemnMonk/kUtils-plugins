@@ -5,18 +5,24 @@ import java.util.UUID;
 
 import org.osgi.service.component.annotations.Component;
 
-import hall.caleb.seltzer.enums.SelectorType;
-import hall.caleb.seltzer.objects.command.ChainCommand;
-import hall.caleb.seltzer.objects.command.Command;
-import hall.caleb.seltzer.util.CommandFactory;
-import hall.caleb.seltzer.util.SeltzerUtils;
-import monk.solemn.kutils.api.authentication.SeleniumAuthentication;
+import monk.solemn.kutils.api.action.AuthenticateAction;
 import monk.solemn.kutils.objects.Credentials;
+import tech.seltzer.enums.CommandType;
+import tech.seltzer.enums.SelectorType;
+import tech.seltzer.objects.command.ChainCommandData;
+import tech.seltzer.objects.command.CommandData;
+import tech.seltzer.objects.command.GoToCommandData;
+import tech.seltzer.objects.command.Selector;
+import tech.seltzer.objects.command.selector.FillFieldCommandData;
+import tech.seltzer.objects.command.selector.SelectorCommandData;
+import tech.seltzer.objects.exception.SeltzerException;
+import tech.seltzer.util.SeltzerSend;
 
 @Component
-public class LexiBelleRawAuthentication implements SeleniumAuthentication {
+public class LexiBelleRawAuthentication implements AuthenticateAction {
 	@Override
-	public boolean login(UUID seleniumId) {
+	public boolean login() {
+		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
 		Credentials credentials = null;
 		try {
 			credentials = LexiBelleRawPlugin.getCredentialDao().loadSiteCredentials("Lexi Belle Raw", null);
@@ -25,28 +31,37 @@ public class LexiBelleRawAuthentication implements SeleniumAuthentication {
 		}
 		
 		if (credentials != null) {
-			ChainCommand command = new ChainCommand(seleniumId);
-			Command subCommand;
+			ChainCommandData<CommandData> command = new ChainCommandData<>(seltzerId);
+			CommandData subCommand;
 			
-			subCommand = CommandFactory.newGoToCommand(seleniumId, LexiBelleRawPlugin.getUrl("Login"));
+			subCommand = new GoToCommandData(seltzerId, LexiBelleRawPlugin.getUrl("Login"));
 			command.getCommands().add(subCommand);
 
 			String xpath = LexiBelleRawPlugin.getXpath("UsernameInput");
 			String value = credentials.getUsername();
-			subCommand = CommandFactory.newFillFieldCommand(seleniumId, SelectorType.Xpath, xpath, value);
+			subCommand = new FillFieldCommandData(seltzerId);
+			((FillFieldCommandData) subCommand).setSelector(new Selector(SelectorType.XPATH, xpath));
+			((FillFieldCommandData) subCommand).setText(value);
 			command.getCommands().add(subCommand);
 			
 			xpath = LexiBelleRawPlugin.getXpath("PasswordInput");
 			value = credentials.getPassword();
-			subCommand = CommandFactory.newFillFieldCommand(seleniumId, SelectorType.Xpath, xpath, value);
+			subCommand = new FillFieldCommandData(seltzerId);
+			((FillFieldCommandData) subCommand).setSelector(new Selector(SelectorType.XPATH, xpath));
+			((FillFieldCommandData) subCommand).setText(value);
 			command.getCommands().add(subCommand);
 			
 			xpath = LexiBelleRawPlugin.getXpath("LoginForm");
-			subCommand = CommandFactory.newFormSubmitCommand(seleniumId, SelectorType.Xpath, xpath);
+			subCommand = new SelectorCommandData(CommandType.FORM_SUBMIT, seltzerId);
+			((FillFieldCommandData) subCommand).setSelector(new Selector(SelectorType.XPATH, xpath));
 			command.getCommands().add(subCommand);
 			
 			command.serialize();
-			SeltzerUtils.send(command);
+			try {
+				SeltzerSend.send(command);
+			} catch (SeltzerException e) {
+				e.printStackTrace();
+			}
 			return true;
 		} else {
 			return false;
@@ -54,19 +69,26 @@ public class LexiBelleRawAuthentication implements SeleniumAuthentication {
 	}
 
 	@Override
-	public void logout(UUID seleniumId) {
-		ChainCommand command = new ChainCommand(seleniumId);
-		Command subCommand;
+	public void logout() {
+		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		ChainCommandData<CommandData> command = new ChainCommandData<>(seltzerId);
+		CommandData subCommand;
 
 		String xpath = LexiBelleRawPlugin.getXpath("ProfileIcon");
-		subCommand = CommandFactory.newClickCommand(seleniumId, SelectorType.Xpath, xpath);
+		subCommand = new SelectorCommandData(CommandType.CLICK, seltzerId);
+		((SelectorCommandData) subCommand).setSelector(new Selector(SelectorType.XPATH, xpath));
 		command.getCommands().add(subCommand);
 		
 		xpath = LexiBelleRawPlugin.getXpath("LogoutLink");
-		subCommand = CommandFactory.newClickCommand(seleniumId, SelectorType.Xpath, xpath);
+		subCommand = new SelectorCommandData(CommandType.CLICK, seltzerId);
+		((SelectorCommandData) subCommand).setSelector(new Selector(SelectorType.XPATH, xpath));
 		command.getCommands().add(subCommand);
 		
 		command.serialize();
-		SeltzerUtils.send(command);
+		try {
+			SeltzerSend.send(command);
+		} catch (SeltzerException e) {
+			e.printStackTrace();
+		}
 	}
 }

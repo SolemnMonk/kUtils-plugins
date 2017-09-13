@@ -12,8 +12,8 @@
 	org.apache.commons.io,\
 	org.apache.commons.lang3,\
 	org.apache.felix.gogo.runtime,\
-	seltzer-cr;version=latest,\
-	seltzer-util;version=latest
+	seltzer-cr;version=1.0,\
+	seltzer-util;version=1.0
 
 -testpath: \
 	${junit}
@@ -26,7 +26,8 @@ Bundle-Version: 0.0.0.${tstamp}
 Include-Resource: resources
 Export-Package: \
 	monk.solemn.kutils.plugin.lexi_belle_raw,\
-	monk.solemn.kutils.plugin.lexi_belle_raw.commands
+	monk.solemn.kutils.plugin.lexi_belle_raw.commands,\
+	monk.solemn.kutils.plugin.lexi_belle_raw.action
 Bundle-Activator: monk.solemn.kutils.plugin.lexi_belle_raw.Activator
 -runfw: org.apache.felix.framework;version='[5.4.0,5.4.0]'
 -runee: JavaSE-1.8
