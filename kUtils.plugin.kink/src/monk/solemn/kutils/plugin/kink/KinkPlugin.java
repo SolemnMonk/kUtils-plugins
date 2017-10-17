@@ -96,14 +96,14 @@ public class KinkPlugin implements PluginBase, NetworkBase {
 			info.setContentTypes(contentTypes);
 
 			List<Task> tasks = new LinkedList<>();
-			tasks.add(new Task(Action.Rip, Target.Network));
-			tasks.add(new Task(Action.Rip, Target.Site));
-			tasks.add(new Task(Action.Rip, Target.Actor));
-			tasks.add(new Task(Action.Download, Target.Series));
-			tasks.add(new Task(Action.Download, Target.Shoot));
-			tasks.add(new Task(Action.GatherData, Target.Series));
-			tasks.add(new Task(Action.GatherData, Target.Shoot));
-			tasks.add(new Task(Action.GatherData, Target.Actor));
+			tasks.add(new Task(Action.RIP, Target.CHANNEL));
+			tasks.add(new Task(Action.RIP, Target.SITE));
+			tasks.add(new Task(Action.RIP, Target.SEARCH));
+			tasks.add(new Task(Action.DOWNLOAD, Target.SERIES));
+			tasks.add(new Task(Action.DOWNLOAD, Target.ITEM));
+			tasks.add(new Task(Action.GATHER_DATA, Target.SERIES));
+			tasks.add(new Task(Action.GATHER_DATA, Target.ITEM));
+			tasks.add(new Task(Action.GATHER_DATA, Target.SEARCH));
 
 			info.setTasks(tasks);
 		}
@@ -256,11 +256,11 @@ public class KinkPlugin implements PluginBase, NetworkBase {
 			new KinkAuthentication().login(seleniumId);
 		}
 		
-		if (queuedTask.getTask().getAction() == Action.Rip) {
+		if (queuedTask.getTask().getAction() == Action.RIP) {
 			Ripper.performRip(seleniumId, queuedTask);
-		} else if (queuedTask.getTask().getAction() == Action.Download) {
+		} else if (queuedTask.getTask().getAction() == Action.DOWNLOAD) {
 			Downloader.performDownload(seleniumId, queuedTask);
-		} else if (queuedTask.getTask().getAction() == Action.GatherData) {
+		} else if (queuedTask.getTask().getAction() == Action.GATHER_DATA) {
 			DataGatherer.gatherData(seleniumId, queuedTask);
 		}
 		
@@ -271,7 +271,7 @@ public class KinkPlugin implements PluginBase, NetworkBase {
 
 	@Override
 	public boolean taskRequiresAuthentication() {
-		if (queuedTask.getTask().getAction() == Action.GatherData) {
+		if (queuedTask.getTask().getAction() == Action.GATHER_DATA) {
 			return false;
 		} else {
 			return true;

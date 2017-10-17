@@ -28,7 +28,7 @@ import tech.seltzer.objects.exception.SeltzerException;
 import tech.seltzer.util.SeltzerSend;
 
 @Component
-public class LexiBelleRawPlugin implements PluginBase, SiteBase {
+public class LbrPlugin implements PluginBase, SiteBase {
 	private static String pluginId = "lexi-belle-raw";
 	
 	private static ResourceBundle urls;
@@ -46,7 +46,7 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	private static FileStorageDao fileStorageDao;
 	private static ConfigDao configDao; 
 	
-	public LexiBelleRawPlugin() {
+	public LbrPlugin() {
 		initialize();
 	}
 	
@@ -79,33 +79,6 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	}
 	
 	@Override
-	public void run() {
-		if (taskRequiresAuthentication()) {
-			new LexiBelleRawAuthentication().login();
-		}
-		
-		if (queuedTask.getTask().getAction() == Action.Rip) {
-			Ripper.performRip(seltzerId, queuedTask);
-//		} else if (queuedTask.getTask().getAction() == Action.Download) {
-//			Downloader.performDownload(seleniumId, queuedTask);
-//		} else if (queuedTask.getTask().getAction() == Action.GatherData) {
-//			DataGatherer.gatherData(seleniumId, queuedTask);
-//		} else if (queuedTask.getTask().getAction() == Action.Monitor) {
-//			Monitor.check(seleniumId, queuedTask);
-		}
-		
-		if (taskRequiresAuthentication()) {
-			new LexiBelleRawAuthentication().logout();
-		}
-		
-		try {
-			SeltzerSend.send(new CommandData(CommandType.EXIT, seltzerId));
-		} catch (SeltzerException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
 	public String getSite() {
 		return "Lexi Belle Raw";
 	}
@@ -132,10 +105,10 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 			info.setContentTypes(contentTypes);
 
 			List<Task> tasks = new LinkedList<>();
-			tasks.add(new Task(Action.Rip, Target.Site));
-			tasks.add(new Task(Action.Download, Target.Shoot));
-			tasks.add(new Task(Action.GatherData, Target.Shoot));
-			tasks.add(new Task(Action.Monitor, Target.Site));
+			tasks.add(new Task(Action.RIP, Target.SITE));
+			tasks.add(new Task(Action.DOWNLOAD, Target.ITEM));
+			tasks.add(new Task(Action.GATHER_DATA, Target.ITEM));
+			tasks.add(new Task(Action.MONITOR, Target.SITE));
 			
 			info.setTasks(tasks);
 		}
@@ -148,7 +121,7 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 		if (queuedTask == null) {
 			return false;
 		} else {
-			LexiBelleRawPlugin.queuedTask = queuedTask;
+			LbrPlugin.queuedTask = queuedTask;
 			return true;
 		}
 	}
@@ -220,7 +193,7 @@ public class LexiBelleRawPlugin implements PluginBase, SiteBase {
 	}
 
 	public static void setSeltzerId(UUID seleniumId) {
-		LexiBelleRawPlugin.seltzerId = seleniumId;
+		LbrPlugin.seltzerId = seleniumId;
 	}
 
 	@Override

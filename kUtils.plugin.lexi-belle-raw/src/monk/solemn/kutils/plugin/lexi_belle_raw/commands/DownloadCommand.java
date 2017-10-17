@@ -15,8 +15,8 @@ import monk.solemn.kutils.objects.Task;
 
 @Component(property={CommandProcessor.COMMAND_SCOPE + ":String=lbr",
 		 			 CommandProcessor.COMMAND_FUNCTION + ":String=rip"},
-		   service=RipCommand.class)
-public class RipCommand {
+		   service=DownloadCommand.class)
+public class DownloadCommand {
 	PluginBase lbrPlugin;
 	
 	@Reference
@@ -24,10 +24,11 @@ public class RipCommand {
 		this.lbrPlugin = lbrPlugin;
 	}
 	
-	public void rip() {
-		Task task = new Task(Action.RIP, Target.SITE);
+	public void run(Target targetType, String url) {
+		Task task = new Task(Action.DOWNLOAD, targetType);
 		
 		Map<String, String> options = new HashMap<>();
+		options.put("url", url);
 		
 		QueuedTask queuedTask = new QueuedTask(task, options);
 		

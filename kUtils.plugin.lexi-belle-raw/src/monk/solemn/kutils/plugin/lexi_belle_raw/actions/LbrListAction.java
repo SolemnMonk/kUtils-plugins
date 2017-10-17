@@ -1,4 +1,4 @@
-package monk.solemn.kutils.plugin.lexi_belle_raw.action;
+package monk.solemn.kutils.plugin.lexi_belle_raw.actions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
 
 import monk.solemn.kutils.api.action.ListAction;
-import monk.solemn.kutils.plugin.lexi_belle_raw.LexiBelleRawPlugin;
+import monk.solemn.kutils.plugin.lexi_belle_raw.LbrPlugin;
 import tech.seltzer.enums.CommandType;
 import tech.seltzer.enums.ResponseType;
 import tech.seltzer.enums.SelectorType;
@@ -71,8 +71,8 @@ public class LbrListAction implements ListAction {
 	@Override
 	public List<String> listChannels() {
 		List<String> channels = new ArrayList<>();
-		channels.add(LexiBelleRawPlugin.getUrl("VideoChannel"));
-		channels.add(LexiBelleRawPlugin.getUrl("PhotosetChannel"));
+		channels.add(LbrPlugin.getUrl("VideoChannel"));
+		channels.add(LbrPlugin.getUrl("PhotosetChannel"));
 		return channels;
 	}
 
@@ -140,8 +140,8 @@ public class LbrListAction implements ListAction {
 	}
 
 	private boolean isChannelPage() throws SeltzerException {
-		String xpath = LexiBelleRawPlugin.getXpath("PageTitle");
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		String xpath = LbrPlugin.getXpath("PageTitle");
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		MultiResultSelectorCommandData cmd = new MultiResultSelectorCommandData(CommandType.READ_TEXT, seltzerId);
 		cmd.setSelector(new Selector(SelectorType.XPATH, xpath));
@@ -159,42 +159,42 @@ public class LbrListAction implements ListAction {
 	}
 	
 	private boolean isItemPage() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		CommandData cmd = new CommandData(CommandType.GET_URL, seltzerId);
 		SingleResultResponse resp = (SingleResultResponse) SeltzerSend.send(cmd);
 		
 		String url = resp.getResult();
 		
-		Pattern pattern = Pattern.compile(LexiBelleRawPlugin.getRegex("ItemUrl"));
+		Pattern pattern = Pattern.compile(LbrPlugin.getRegex("ItemUrl"));
 		Matcher matcher = pattern.matcher(url);
 		
 		return matcher.matches();
 	}
 
 	private long countItems() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		SelectorCommandData cmd = new SelectorCommandData(CommandType.COUNT, seltzerId);
-		cmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ItemGrid")));
+		cmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ItemGrid")));
 		
 		return Long.parseLong(((SingleResultResponse) SeltzerSend.send(cmd)).getResult());
 	}
 	
 	private long countBundles() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		SelectorCommandData cmd = new SelectorCommandData(CommandType.COUNT, seltzerId);
-		cmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ItemGrid")));
+		cmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ItemGrid")));
 		
 		return Long.parseLong(((SingleResultResponse) SeltzerSend.send(cmd)).getResult());
 	}
 	
 	private List<String> getItems() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		ReadAttributeCommandData cmd = new ReadAttributeCommandData(seltzerId);
-		cmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ItemGrid")));
+		cmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ItemGrid")));
 		cmd.setAttribute("href");
 		cmd.setMaxResults(0);
 		
@@ -202,14 +202,14 @@ public class LbrListAction implements ListAction {
 	}
 	
 	private List<String> getBundles() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		CommandData urlCmd = new CommandData(CommandType.GET_URL, seltzerId);
 		SingleResultResponse resp = (SingleResultResponse) SeltzerSend.send(urlCmd);
 		
 		String url = resp.getResult();
 		
-		Pattern pattern = Pattern.compile(LexiBelleRawPlugin.getRegex("ItemUrl"));
+		Pattern pattern = Pattern.compile(LbrPlugin.getRegex("ItemUrl"));
 		Matcher matcher = pattern.matcher(url);
 		
 		if (matcher.matches()) {
@@ -226,10 +226,10 @@ public class LbrListAction implements ListAction {
 	}
 
 	private List<String> getVideoBundle() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		ReadAttributeCommandData cmd = new ReadAttributeCommandData(seltzerId);
-		cmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("VideoSource")));
+		cmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("VideoSource")));
 		cmd.setAttribute("src");
 		cmd.setMaxResults(1);
 		
@@ -237,27 +237,27 @@ public class LbrListAction implements ListAction {
 	}
 
 	private List<String> getPhotosetBundles() throws SeltzerException {
-		UUID seltzerId = LexiBelleRawPlugin.getSeltzerId();
+		UUID seltzerId = LbrPlugin.getSeltzerId();
 		
 		SelectorCommandData countCmd = new SelectorCommandData(CommandType.COUNT, seltzerId);
-		countCmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ShowAllPhotosButton")));
+		countCmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ShowAllPhotosButton")));
 		
 		SelectorCommandData clickCmd;
 		
 		if (Integer.parseInt(((SingleResultResponse) SeltzerSend.send(countCmd)).getResult()) == 1) {
 			clickCmd = new SelectorCommandData(CommandType.COUNT, seltzerId);
-			clickCmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ShowAllPhotosButton")));
+			clickCmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ShowAllPhotosButton")));
 			
 			SeltzerSend.send(clickCmd);
 		}
 		
 		clickCmd = new SelectorCommandData(CommandType.COUNT, seltzerId);
-		clickCmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("FirstImage")));
+		clickCmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("FirstImage")));
 		
 		SeltzerSend.send(clickCmd);
 		
 		MultiResultSelectorCommandData readCmd = new MultiResultSelectorCommandData(CommandType.READ_TEXT, seltzerId);
-		readCmd.setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("ImageCountLabel")));
+		readCmd.setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("ImageCountLabel")));
 		readCmd.setMaxResults(1);
 		
 		MultiResultResponse readResp = (MultiResultResponse) SeltzerSend.send(readCmd);
@@ -268,7 +268,7 @@ public class LbrListAction implements ListAction {
 		
 		for (long i = 0; i < imageCount; i++) {
 			subCmd = new ReadAttributeCommandData(seltzerId);
-			((ReadAttributeCommandData) subCmd).setSelector(new Selector(SelectorType.XPATH, LexiBelleRawPlugin.getXpath("FullscreenImage")));
+			((ReadAttributeCommandData) subCmd).setSelector(new Selector(SelectorType.XPATH, LbrPlugin.getXpath("FullscreenImage")));
 			((ReadAttributeCommandData) subCmd).setAttribute("src");
 			((ReadAttributeCommandData) subCmd).setMaxResults(1);
 			chain.addCommand(subCmd);

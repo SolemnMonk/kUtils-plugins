@@ -27,7 +27,7 @@ Include-Resource: resources
 Export-Package: \
 	monk.solemn.kutils.plugin.lexi_belle_raw,\
 	monk.solemn.kutils.plugin.lexi_belle_raw.commands,\
-	monk.solemn.kutils.plugin.lexi_belle_raw.action
+	monk.solemn.kutils.plugin.lexi_belle_raw.actions
 Bundle-Activator: monk.solemn.kutils.plugin.lexi_belle_raw.Activator
 -runfw: org.apache.felix.framework;version='[5.4.0,5.4.0]'
 -runee: JavaSE-1.8

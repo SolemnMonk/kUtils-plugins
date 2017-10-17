@@ -26,7 +26,7 @@ public class RipCommand {
 	}
 	
 	public void rip() {
-		Task task = new Task(Action.Rip, Target.Site);
+		Task task = new Task(Action.RIP, Target.SITE);
 		
 		Map<String, String> options = new HashMap<>();
 		options.put("site-friendly-name", "Kink Test Shoots");
