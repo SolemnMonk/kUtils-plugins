@@ -198,7 +198,6 @@ public class LbrPlugin implements PluginBase, SiteBase {
 
 	@Override
 	public void install() {
-		// TODO Auto-generated method stub
 		
 	}
 }
